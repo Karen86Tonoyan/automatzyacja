@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATLAS - AI Agent Pro</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="popup-container">
+    <header>
+      <h1>ATLAS</h1>
+      <button id="open-sidepanel-btn">Open Full Panel</button>
+    </header>
+
+    <div class="quick-actions">
+      <button id="quick-save-btn" class="btn primary">💾 Save Page</button>
+      <button id="quick-ai-btn" class="btn">🤖 AI Analyze</button>
+      <button id="quick-whatsapp-btn" class="btn">💬 WhatsApp</button>
+    </div>
+
+    <div class="status-section">
+      <div class="status-item">
+        <span class="label">User:</span>
+        <span id="status-user">Not logged in</span>
+      </div>
+      <div class="status-item">
+        <span class="label">AI:</span>
+        <span id="status-ai">Not connected</span>
+      </div>
+      <div class="status-item">
+        <span class="label">Tasks:</span>
+        <span id="status-tasks">0 active</span>
+      </div>
+    </div>
+
+    <div class="recent-section">
+      <h3>Recent Saves</h3>
+      <div id="recent-list"></div>
+    </div>
+
+    <footer>
+      <button id="settings-btn">⚙️ Settings</button>
+      <button id="export-btn">📥 Export</button>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

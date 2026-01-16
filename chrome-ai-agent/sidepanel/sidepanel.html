@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATLAS - AI Agent Pro</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <div id="atlas-container">
+    <!-- Header -->
+    <header id="atlas-header">
+      <h1>ATLAS</h1>
+      <div id="user-status">
+        <span id="user-name">Not logged in</span>
+        <button id="login-btn">Login with Google</button>
+      </div>
+    </header>
+
+    <!-- Tabs -->
+    <nav id="tabs">
+      <button class="tab active" data-tab="capture">Capture</button>
+      <button class="tab" data-tab="saved">Saved Pages</button>
+      <button class="tab" data-tab="automation">Automation</button>
+      <button class="tab" data-tab="analytics">Analytics</button>
+      <button class="tab" data-tab="export">Export</button>
+    </nav>
+
+    <!-- Tab: Capture -->
+    <div id="capture-tab" class="tab-content active">
+      <h2>Capture Current Page</h2>
+
+      <div class="capture-preview">
+        <div id="page-preview">
+          <h3 id="page-title">Loading...</h3>
+          <p id="page-url"></p>
+          <p id="page-meta"></p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Tags (comma separated)</label>
+        <input type="text" id="capture-tags" placeholder="marketing, research, competitor">
+      </div>
+
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="capture-notes" rows="4" placeholder="Add your notes..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Category</label>
+        <select id="capture-category">
+          <option value="research">Research</option>
+          <option value="competitor">Competitor</option>
+          <option value="reference">Reference</option>
+          <option value="lead">Lead</option>
+          <option value="personal">Personal</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="capture-screenshot">
+          Capture screenshot
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="capture-fulltext">
+          Save full page text
+        </label>
+      </div>
+
+      <button id="save-page-btn" class="btn primary">Save Page</button>
+      <button id="ai-analyze-btn" class="btn">AI Analyze</button>
+    </div>
+
+    <!-- Tab: Saved Pages -->
+    <div id="saved-tab" class="tab-content">
+      <h2>Saved Pages</h2>
+
+      <div class="toolbar">
+        <input type="text" id="search-saved" placeholder="Search by title, url, tags...">
+        <select id="filter-category">
+          <option value="">All Categories</option>
+          <option value="research">Research</option>
+          <option value="competitor">Competitor</option>
+          <option value="reference">Reference</option>
+          <option value="lead">Lead</option>
+          <option value="personal">Personal</option>
+        </select>
+        <button id="refresh-saved-btn" class="btn">Refresh</button>
+      </div>
+
+      <div id="saved-pages-list"></div>
+    </div>
+
+    <!-- Tab: Automation -->
+    <div id="automation-tab" class="tab-content">
+      <h2>Automation Control</h2>
+
+      <div class="automation-section">
+        <h3>WhatsApp Bulk Messages</h3>
+        <button id="whatsapp-campaign-btn" class="btn">Start Campaign</button>
+        <div id="whatsapp-status" class="status-box"></div>
+      </div>
+
+      <div class="automation-section">
+        <h3>Messenger Bulk Messages</h3>
+        <button id="messenger-campaign-btn" class="btn">Start Campaign</button>
+        <div id="messenger-status" class="status-box"></div>
+      </div>
+
+      <div class="automation-section">
+        <h3>Email Campaign</h3>
+        <button id="email-campaign-btn" class="btn">Start Campaign</button>
+        <div id="email-status" class="status-box"></div>
+      </div>
+
+      <div class="automation-section">
+        <h3>Social Media Automation</h3>
+        <div class="automation-controls">
+          <label><input type="checkbox" id="auto-like"> Auto Like</label>
+          <label><input type="checkbox" id="auto-comment"> Auto Comment</label>
+          <label><input type="checkbox" id="auto-follow"> Auto Follow</label>
+        </div>
+        <button id="social-start-btn" class="btn">Start Social Automation</button>
+        <button id="social-stop-btn" class="btn danger">Stop</button>
+      </div>
+
+      <div class="automation-section">
+        <h3>Scheduled Tasks</h3>
+        <button id="schedule-task-btn" class="btn">Schedule New Task</button>
+        <div id="scheduled-tasks-list"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Analytics -->
+    <div id="analytics-tab" class="tab-content">
+      <h2>Analytics & Insights</h2>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Pages Saved</h3>
+          <p class="stat-value" id="stat-pages">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Messages Sent</h3>
+          <p class="stat-value" id="stat-messages">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Active Automations</h3>
+          <p class="stat-value" id="stat-automations">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>AI Queries</h3>
+          <p class="stat-value" id="stat-ai">0</p>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <h3>Activity Chart</h3>
+        <canvas id="activity-chart"></canvas>
+      </div>
+
+      <div id="competitor-analysis">
+        <h3>Competitor Tracking</h3>
+        <input type="url" id="competitor-url" placeholder="Enter competitor URL">
+        <button id="analyze-competitor-btn" class="btn">Analyze</button>
+        <div id="competitor-results"></div>
+      </div>
+
+      <div id="trending-topics">
+        <h3>Trending Topics</h3>
+        <select id="trending-platform">
+          <option value="twitter">Twitter</option>
+          <option value="reddit">Reddit</option>
+          <option value="github">GitHub</option>
+        </select>
+        <button id="fetch-trends-btn" class="btn">Fetch Trends</button>
+        <div id="trends-list"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Export -->
+    <div id="export-tab" class="tab-content">
+      <h2>Export & File Generation</h2>
+
+      <div class="export-section">
+        <h3>Export Saved Pages</h3>
+        <label>Format:</label>
+        <select id="export-format">
+          <option value="json">JSON</option>
+          <option value="csv">CSV</option>
+          <option value="txt">Text</option>
+          <option value="md">Markdown</option>
+          <option value="html">HTML</option>
+          <option value="pdf">PDF (via backend)</option>
+          <option value="docx">DOCX (via backend)</option>
+          <option value="xlsx">XLSX (via backend)</option>
+        </select>
+        <button id="export-pages-btn" class="btn primary">Export Now</button>
+      </div>
+
+      <div class="export-section">
+        <h3>Import Contacts</h3>
+        <input type="file" id="import-contacts-file" accept=".csv,.json">
+        <button id="import-contacts-btn" class="btn">Import</button>
+        <div id="import-status"></div>
+      </div>
+
+      <div class="export-section">
+        <h3>Backup & Restore</h3>
+        <button id="export-all-btn" class="btn">Export All Data</button>
+        <input type="file" id="import-backup-file" accept=".json">
+        <button id="import-backup-btn" class="btn">Import Backup</button>
+      </div>
+
+      <div class="export-section">
+        <h3>n8n Integration</h3>
+        <label>Webhook URL:</label>
+        <input type="url" id="n8n-webhook" placeholder="https://your-n8n.com/webhook/atlas">
+        <button id="save-n8n-btn" class="btn">Save</button>
+        <button id="test-n8n-btn" class="btn">Test Webhook</button>
+      </div>
+
+      <div class="export-section">
+        <h3>AI Document Generator</h3>
+        <select id="ai-doc-provider">
+          <option value="deepseek">DeepSeek</option>
+          <option value="gemini">Google Gemini</option>
+          <option value="chatgpt">ChatGPT</option>
+        </select>
+        <button id="connect-ai-btn" class="btn">Connect AI</button>
+        <div id="ai-connection-status"></div>
+
+        <textarea id="ai-prompt" rows="4" placeholder="Prompt for document generation..."></textarea>
+        <select id="ai-doc-format">
+          <option value="md">Markdown</option>
+          <option value="html">HTML</option>
+          <option value="txt">Text</option>
+        </select>
+        <button id="generate-ai-doc-btn" class="btn primary">Generate Document</button>
+        <div id="ai-doc-output"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>

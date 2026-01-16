@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perplexity Agent</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 400px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      color: #333;
+    }
+
+    .status {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #10a37f;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: monospace;
+      resize: vertical;
+    }
+
+    textarea {
+      min-height: 100px;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    .btn-full {
+      grid-column: 1 / -1;
+      background: #10a37f;
+    }
+
+    .btn-full:hover {
+      background: #0a8f6f;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 163, 127, 0.4);
+    }
+
+    .status-bar {
+      background: #f5f5f5;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 15px;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .status-bar.success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-bar.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .tab-button {
+      background: none;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #999;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .tab-button.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .footer {
+      font-size: 11px;
+      color: #999;
+      text-align: center;
+      padding-top: 10px;
+      border-top: 1px solid #e0e0e0;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="status"></div>
+      <h1>Perplexity Agent</h1>
+    </div>
+
+    <div class="status-bar" id="statusBar">
+      Gotowy do użytku ✅
+    </div>
+
+    <div class="tabs">
+      <button class="tab-button active" data-tab="query">Pytanie</button>
+      <button class="tab-button" data-tab="settings">Ustawienia</button>
+      <button class="tab-button" data-tab="history">Historia</button>
+    </div>
+
+    <!-- TAB: Query -->
+    <div class="tab-content active" id="query-tab">
+      <div class="input-group">
+        <label>🔍 Zapytanie do Perplexity:</label>
+        <textarea id="queryInput" placeholder="Napisz pytanie, a Perplexity odpowie..."></textarea>
+      </div>
+
+      <div class="input-group">
+        <label>🎯 Typ zapytania:</label>
+        <select id="queryType" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+          <option value="general">Ogólne</option>
+          <option value="research">Deep Research</option>
+          <option value="code">Kod</option>
+          <option value="creative">Kreatywne</option>
+        </select>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-primary" id="sendQuery">Wyślij</button>
+        <button class="btn-secondary" id="clearQuery">Wyczyść</button>
+      </div>
+
+      <div class="input-group">
+        <label>📝 Odpowiedź:</label>
+        <textarea id="responseBox" readonly style="background: #f9f9f9;"></textarea>
+      </div>
+
+      <button class="btn-full" id="copyResponse">📋 Kopiuj odpowiedź</button>
+    </div>
+
+    <!-- TAB: Settings -->
+    <div class="tab-content" id="settings-tab">
+      <div class="input-group">
+        <label>🔑 Perplexity API Key:</label>
+        <input type="password" id="apiKey" placeholder="pplx-...">
+      </div>
+
+      <div class="input-group">
+        <label>📊 Model:</label>
+        <select id="modelSelect" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+          <option value="llama-3.1-sonar-huge-128k-online">Sonar Huge (Online)</option>
+          <option value="llama-3.1-sonar-large-128k-online">Sonar Large (Online)</option>
+          <option value="llama-3.1-sonar-small-128k-online">Sonar Small (Online)</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label>🌡️ Temperature (0-2):</label>
+        <input type="range" id="temperature" min="0" max="2" step="0.1" value="0.7" style="width: 100%;">
+        <span id="tempValue">0.7</span>
+      </div>
+
+      <button class="btn-full" id="saveSettings">💾 Zapisz ustawienia</button>
+    </div>
+
+    <!-- TAB: History -->
+    <div class="tab-content" id="history-tab">
+      <div id="historyList" style="max-height: 300px; overflow-y: auto;">
+        <p style="color: #999; font-size: 12px;">Brak historii</p>
+      </div>
+      <button class="btn-secondary" id="clearHistory" style="width: 100%; margin-top: 10px;">
+        🗑️ Wyczyść historię
+      </button>
+    </div>
+
+    <div class="footer">
+      v1.0.0 | © 2025 Perplexity Agent
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

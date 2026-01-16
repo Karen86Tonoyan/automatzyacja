@@ -1,0 +1,91 @@
+# AI Browser Agent - gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# Environment variables
+.env
+*.env
+!.env.example
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Memory/Database
+memory/
+*.db
+*.sqlite
+*.sqlite3
+
+# Reports
+reports/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+tmpclaude-*
+
+# Node
+node_modules/
+package-lock.json
+
+# Chrome Extension (node_modules)
+chrome-ai-agent/node_modules/
+perplexity-agent/node_modules/
+
+# Build artifacts
+*.zip
+*.tar.gz
+*.rar
+
+# Playwright
+.playwright/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/

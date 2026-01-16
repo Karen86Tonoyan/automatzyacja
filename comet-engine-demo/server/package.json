@@ -1,0 +1,12 @@
+{
+  "name": "comet-engine-demo",
+  "version": "1.0.0",
+  "description": "Minimalny silnik Comet (long-polling) w Node.js",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {}
+}

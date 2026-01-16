@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Comet Engine Demo</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 { color: #333; margin-bottom: 10px; }
+    .info { 
+      font-size: 13px; 
+      color: #666; 
+      background: #fffacd; 
+      padding: 10px; 
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    #status {
+      font-size: 12px;
+      color: #555;
+      padding: 8px;
+      background: #fff;
+      border-left: 3px solid #007bff;
+      margin-bottom: 15px;
+      border-radius: 3px;
+    }
+    #status.connected { border-left-color: #28a745; }
+    #status.waiting { border-left-color: #ffc107; }
+    #status.error { border-left-color: #dc3545; }
+
+    #log {
+      border: 1px solid #ddd;
+      padding: 12px;
+      height: 300px;
+      overflow-y: auto;
+      background: #fff;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 13px;
+    }
+    .msg {
+      padding: 6px 0;
+      border-bottom: 1px solid #f0f0f0;
+      line-height: 1.4;
+    }
+    .msg:last-child { border-bottom: none; }
+    .ts { color: #999; font-size: 11px; }
+    .text { color: #333; }
+
+    #form {
+      display: flex;
+      gap: 8px;
+    }
+    #text {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    #text:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+    }
+    button {
+      padding: 10px 24px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    button:hover { background: #0056b3; }
+    button:active { transform: scale(0.98); }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .stats {
+      font-size: 12px;
+      color: #666;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <h1>🚀 Comet Engine Demo</h1>
+  
+  <div class="info">
+    <strong>Long-polling:</strong> Klient wysyła żądanie, serwer trzyma połączenie otwarte aż do przyjścia nowej wiadomości lub timeout'u.
+  </div>
+
+  <div id="status">Status: inicjalizacja...</div>
+  <div id="log"></div>
+
+  <form id="form">
+    <input id="text" type="text" placeholder="Wpisz wiadomość..." autocomplete="off" />
+    <button type="submit">Wyślij</button>
+  </form>
+
+  <div class="stats">
+    <div>📊 Wiadomości: <span id="count">0</span></div>
+    <div>🔌 Połączenia: <span id="connections">0</span></div>
+  </div>
+
+  <script>
+    const API = "http://localhost:8080";
+    const logEl = document.getElementById("log");
+    const statusEl = document.getElementById("status");
+    const textEl = document.getElementById("text");
+    const formEl = document.getElementById("form");
+    const countEl = document.getElementById("count");
+    const connectionsEl = document.getElementById("connections");
+
+    let lastId = 0;
+    let stopped = false;
+    let messageCount = 0;
+    let connectionCount = 0;
+
+    function log(msg, type = "info") {
+      const div = document.createElement("div");
+      div.className = "msg";
+      
+      const ts = new Date().toLocaleTimeString();
+      div.innerHTML = `<span class="ts">[${ts}]</span> <span class="text">${escapeHtml(msg)}</span>`;
+      
+      logEl.appendChild(div);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    function updateStatus(message, status = "info") {
+      statusEl.textContent = "Status: " + message;
+      statusEl.className = status;
+    }
+
+    async function cometLoop() {
+      while (!stopped) {
+        try {
+          updateStatus("Czekam na serwer...", "waiting");
+          connectionCount++;
+          connectionsEl.textContent = connectionCount;
+
+          const res = await fetch(`${API}/comet?lastId=${lastId}`, {
+            method: "GET",
+            cache: "no-store"
+          });
+
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+          }
+
+          const payload = await res.json();
+          updateStatus("✓ Połączono", "connected");
+
+          if (payload.type === "messages") {
+            for (const m of payload.data) {
+              lastId = Math.max(lastId, m.id);
+              messageCount++;
+              countEl.textContent = messageCount;
+              log(`#${m.id}: ${m.text}`);
+            }
+          } else if (payload.type === "keepalive") {
+            log("(keepalive)");
+          }
+
+          // natychmiast ponów loop
+        } catch (e) {
+          updateStatus(`Błąd: ${e.message}. Retry za 2s...`, "error");
+          await new Promise(r => setTimeout(r, 2000));
+        }
+      }
+    }
+
+    // wysyłanie wiadomości
+    formEl.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const text = textEl.value.trim();
+      if (!text) return;
+
+      textEl.value = "";
+      textEl.disabled = true;
+
+      try {
+        const res = await fetch(`${API}/publish`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text })
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const result = await res.json();
+        if (result.ok) {
+          log(`[Ty]: ${text}`, "sent");
+        }
+      } catch (e) {
+        log(`❌ Błąd wysyłania: ${e.message}`);
+      } finally {
+        textEl.disabled = false;
+        textEl.focus();
+      }
+    });
+
+    // start
+    window.addEventListener("beforeunload", () => {
+      stopped = true;
+    });
+
+    log("🎯 Comet engine startuje...");
+    textEl.focus();
+    cometLoop();
+  </script>
+</body>
+</html>
